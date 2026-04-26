@@ -1,30 +1,178 @@
-  .App {
-  text-align: center;
-}
+  .app-shell {
+    min-height: 100vh;
+    padding: 48px 0 64px;
+    background:
+      radial-gradient(circle at top left, rgba(34, 211, 238, 0.22), transparent 32%),
+      radial-gradient(circle at top right, rgba(16, 185, 129, 0.18), transparent 28%),
+      linear-gradient(180deg, #07111f 0%, #0c1728 48%, #0f172a 100%);
+    color: #e5eefb;
+  }
 
- 
+  .app-container {
+    position: relative;
+  }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
+  .hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(220px, 0.6fr);
+    gap: 24px;
+    align-items: center;
+  }
 
- .users-button {
-  background-color: #61dafb;
-  border: none;
-  color: white;
-  padding: 20px 40px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 18px;
-  margin: 4px 2px;
-  cursor: pointer;
-    border-radius: 8px;
-  cursor: pointer;}
+  .hero-chip {
+    margin-bottom: 16px;
+    background: rgba(125, 211, 252, 0.15) !important;
+    color: #dbeafe !important;
+    border: 1px solid rgba(125, 211, 252, 0.25);
+  }
+
+  .hero-title {
+    font-weight: 800 !important;
+    line-height: 1.02 !important;
+    margin-bottom: 12px !important;
+    letter-spacing: -0.04em !important;
+  }
+
+  .hero-copy {
+    max-width: 760px;
+    color: rgba(226, 232, 240, 0.82);
+  }
+
+  .hero-stats {
+    justify-self: end;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 22px;
+    border-radius: 20px;
+    background: rgba(15, 23, 42, 0.72);
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    box-shadow: 0 30px 60px rgba(2, 6, 23, 0.25);
+  }
+
+  .hero-avatar {
+    width: 56px !important;
+    height: 56px !important;
+    background: linear-gradient(135deg, #22d3ee, #14b8a6) !important;
+    color: #05212b !important;
+    font-weight: 800 !important;
+  }
+
+  .hero-stat-text {
+    color: rgba(226, 232, 240, 0.84);
+  }
+
+  .form-card {
+    padding: 28px !important;
+    border-radius: 28px !important;
+    background: rgba(15, 23, 42, 0.82) !important;
+    border: 1px solid rgba(148, 163, 184, 0.18) !important;
+    color: inherit !important;
+    box-shadow: 0 30px 80px rgba(2, 6, 23, 0.35) !important;
+  }
+
+  .form-title {
+    font-weight: 700 !important;
+    margin-bottom: 4px !important;
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .form-full {
+    grid-column: 1 / -1;
+  }
+
+  .form-subtitle {
+    color: rgba(226, 232, 240, 0.72);
+  }
+
+  .submit-button {
+    min-width: 180px !important;
+    border-radius: 14px !important;
+    padding-inline: 24px !important;
+    background: linear-gradient(135deg, #22d3ee, #14b8a6) !important;
+    color: #042f2e !important;
+    font-weight: 700 !important;
+  }
+
+  .submit-button:hover {
+    filter: brightness(1.04);
+  }
+
+  .users-panel {
+    padding: 28px;
+    border-radius: 28px;
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(148, 163, 184, 0.16);
+  }
+
+  .users-title {
+    margin-bottom: 20px !important;
+    font-weight: 700 !important;
+  }
+
+  .empty-state {
+    color: rgba(226, 232, 240, 0.72);
+  }
+
+  .users-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 16px;
+  }
+
+  .user-card {
+    display: flex;
+    gap: 16px;
+    padding: 18px;
+    border-radius: 20px;
+    background: rgba(15, 23, 42, 0.88);
+    border: 1px solid rgba(148, 163, 184, 0.14);
+  }
+
+  .user-avatar {
+    width: 48px !important;
+    height: 48px !important;
+    background: rgba(125, 211, 252, 0.16) !important;
+    color: #dbeafe !important;
+    font-weight: 700 !important;
+  }
+
+  .user-meta,
+  .user-notes {
+    color: rgba(226, 232, 240, 0.76) !important;
+  }
+
+  @media (max-width: 900px) {
+    .hero {
+      grid-template-columns: 1fr;
+    }
+
+    .hero-stats {
+      justify-self: start;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .app-shell {
+      padding: 24px 0 40px;
+    }
+
+    .form-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .form-card,
+    .users-panel {
+      padding: 20px;
+      border-radius: 22px;
+    }
+
+    .hero-title {
+      font-size: 2.4rem !important;
+    }
+  }

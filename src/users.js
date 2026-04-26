@@ -1,4 +1,3 @@
-const user = () => {
+const initialUsers = [];
 
-} 
-export default user;
+export default initialUsers;

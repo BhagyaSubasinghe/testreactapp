@@ -10,7 +10,7 @@ import {
 
 const roles = ['User', 'Admin', 'Manager'];
 
-const UserForm = ({ values, errors, onChange, onSubmit, submitLabel = 'Create user' }) => {
+const UserForm = ({ values, errors, onChange, onSubmit, onCancel, submitLabel = 'Create user', isEditing = false }) => {
     return (
         <Paper elevation={0} className="form-card">
             <Stack spacing={3}>
@@ -139,9 +139,16 @@ const UserForm = ({ values, errors, onChange, onSubmit, submitLabel = 'Create us
                         ) : null}
 
                         <div className="form-full">
-                            <Button type="submit" variant="contained" size="large" className="submit-button">
-                                {submitLabel}
-                            </Button>
+                            <Stack direction="row" spacing={2}>
+                                <Button type="submit" variant="contained" size="large" className="submit-button">
+                                    {submitLabel}
+                                </Button>
+                                {isEditing ? (
+                                    <Button type="button" variant="outlined" size="large" onClick={onCancel}>
+                                        Cancel
+                                    </Button>
+                                ) : null}
+                            </Stack>
                         </div>
                     </div>
                 </form>

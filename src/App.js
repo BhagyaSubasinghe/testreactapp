@@ -1,7 +1,8 @@
 
 import { useState } from 'react';
-import { Avatar, Chip, Container, Stack, Typography } from '@mui/material';
+import { Avatar, Box, Chip, Container, Stack, Tab, Tabs, Typography } from '@mui/material';
 import UserForm from './userform';
+import UsersTable from './userstable';
 import initialUsers from './users';
 import './App.css';
 
@@ -17,6 +18,8 @@ function App() {
   const [formValues, setFormValues] = useState(emptyForm);
   const [users, setUsers] = useState(initialUsers);
   const [errors, setErrors] = useState({});
+  const [currentTab, setCurrentTab] = useState(0);
+  const [editingId, setEditingId] = useState(null);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -59,16 +62,50 @@ function App() {
       return;
     }
 
-    setUsers((currentUsers) => [
-      {
-        id: crypto.randomUUID(),
-        ...formValues,
-      },
-      ...currentUsers,
-    ]);
+    if (editingId) {
+      setUsers((currentUsers) =>
+        currentUsers.map((user) => (user.id === editingId ? { ...user, ...formValues } : user))
+      );
+      setEditingId(null);
+    } else {
+      setUsers((currentUsers) => [
+        {
+          id: crypto.randomUUID(),
+          ...formValues,
+        },
+        ...currentUsers,
+      ]);
+    }
 
     setFormValues(emptyForm);
     setErrors({});
+    setCurrentTab(1);
+  };
+
+  const handleEditUser = (user) => {
+    setFormValues(user);
+    setEditingId(user.id);
+    setCurrentTab(0);
+    window.scrollTo(0, 0);
+  };
+
+  const handleDeleteUser = (userId) => {
+    if (window.confirm('Are you sure you want to delete this user?')) {
+      setUsers((currentUsers) => currentUsers.filter((user) => user.id !== userId));
+    }
+  };
+
+  const handleCancel = () => {
+    setFormValues(emptyForm);
+    setEditingId(null);
+    setErrors({});
+  };
+
+  const handleTabChange = (event, newValue) => {
+    setCurrentTab(newValue);
+    if (newValue === 1) {
+      handleCancel();
+    }
   };
 
   return (
@@ -94,45 +131,31 @@ function App() {
             </div>
           </header>
 
-          <UserForm values={formValues} errors={errors} onChange={handleChange} onSubmit={handleSubmit} />
+          <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+            <Tabs value={currentTab} onChange={handleTabChange} aria-label="user management tabs">
+              <Tab label="Create User" id="tab-0" />
+              <Tab label="View Users" id="tab-1" />
+            </Tabs>
+          </Box>
 
-          <section className="users-panel">
-            <Typography variant="h5" component="h2" className="users-title">
-              Submitted users
-            </Typography>
-
-            {users.length === 0 ? (
-              <Typography variant="body1" className="empty-state">
-                No users have been added yet. Submit the form to see them here.
+          {currentTab === 0 ? (
+            <UserForm
+              values={formValues}
+              errors={errors}
+              onChange={handleChange}
+              onSubmit={handleSubmit}
+              onCancel={handleCancel}
+              submitLabel={editingId ? 'Update user' : 'Create user'}
+              isEditing={editingId !== null}
+            />
+          ) : (
+            <section className="users-panel">
+              <Typography variant="h5" component="h2" className="users-title">
+                Submitted users ({users.length})
               </Typography>
-            ) : (
-              <div className="users-grid">
-                {users.map((user) => (
-                  <article key={user.id} className="user-card">
-                    <Avatar className="user-avatar">{user.name.charAt(0).toUpperCase()}</Avatar>
-                    <div>
-                      <Typography variant="h6" component="h3">
-                        {user.name}
-                      </Typography>
-                      <Typography variant="body2" className="user-meta">
-                        {user.role} • {user.email}
-                      </Typography>
-                      {user.phone ? (
-                        <Typography variant="body2" className="user-meta">
-                          {user.phone}
-                        </Typography>
-                      ) : null}
-                      {user.notes ? (
-                        <Typography variant="body2" className="user-notes">
-                          {user.notes}
-                        </Typography>
-                      ) : null}
-                    </div>
-                  </article>
-                ))}
-              </div>
-            )}
-          </section>
+              <UsersTable users={users} onEdit={handleEditUser} onDelete={handleDeleteUser} />
+            </section>
+          )}
         </Stack>
       </Container>
     </div>

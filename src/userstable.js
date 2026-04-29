@@ -15,11 +15,11 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-const UsersTable = ({ users, onEdit, onDelete }) => {
+const UsersTable = ({ users, onEdit, onDelete, emptyMessage = 'No users have been added yet. Submit the form to see them here.' }) => {
 	if (users.length === 0) {
 		return (
 			<Typography variant="body1" className="empty-state">
-				No users have been added yet. Submit the form to see them here.
+				{emptyMessage}
 			</Typography>
 		);
 	}

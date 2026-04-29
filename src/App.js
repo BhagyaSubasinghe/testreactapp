@@ -1,6 +1,7 @@
 
 import { useState } from 'react';
-import { Avatar, Box, Chip, Container, Stack, Tab, Tabs, Typography } from '@mui/material';
+import { Avatar, Box, Chip, Container, InputAdornment, Stack, Tab, Tabs, TextField, Typography } from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
 import UserForm from './userform';
 import UsersTable from './userstable';
 import initialUsers from './users';
@@ -20,6 +21,7 @@ function App() {
   const [errors, setErrors] = useState({});
   const [currentTab, setCurrentTab] = useState(0);
   const [editingId, setEditingId] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -108,6 +110,18 @@ function App() {
     }
   };
 
+  const filteredUsers = users.filter((user) => {
+    const query = searchTerm.trim().toLowerCase();
+
+    if (!query) {
+      return true;
+    }
+
+    return [user.name, user.email, user.role, user.phone, user.notes]
+      .filter(Boolean)
+      .some((value) => value.toLowerCase().includes(query));
+  });
+
   return (
     <div className="app-shell">
       <Container maxWidth="lg" className="app-container">
@@ -150,10 +164,33 @@ function App() {
             />
           ) : (
             <section className="users-panel">
-              <Typography variant="h5" component="h2" className="users-title">
-                Submitted users ({users.length})
-              </Typography>
-              <UsersTable users={users} onEdit={handleEditUser} onDelete={handleDeleteUser} />
+              <Stack spacing={2}>
+                <Typography variant="h5" component="h2" className="users-title">
+                  Submitted users ({filteredUsers.length}/{users.length})
+                </Typography>
+
+                <TextField
+                  fullWidth
+                  label="Search users"
+                  placeholder="Search by name, email, role, phone, or notes"
+                  value={searchTerm}
+                  onChange={(event) => setSearchTerm(event.target.value)}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <SearchIcon />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+
+                <UsersTable
+                  users={filteredUsers}
+                  onEdit={handleEditUser}
+                  onDelete={handleDeleteUser}
+                  emptyMessage={searchTerm ? 'No users match your search.' : undefined}
+                />
+              </Stack>
             </section>
           )}
         </Stack>

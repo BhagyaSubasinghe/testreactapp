@@ -18,10 +18,10 @@ export const userAPI = {
   createUser: (userData) => api.post('/createusers', userData),
 
   // Update a user
-  updateUser: (userId, userData) => api.post('/updateusers', { ...userData, id: userId }),
+  updateUser: (userId, userData) => api.post(`/updateusers/${userId}`, userData),
 
   // Delete a user
-  deleteUser: (userId) => api.post('/deleteusers', { id: userId }),
+  deleteUser: (userId) => api.post(`/deleteusers/${userId}`),
 };
 
 // Error handler

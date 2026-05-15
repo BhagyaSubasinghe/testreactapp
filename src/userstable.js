@@ -15,8 +15,8 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-const UsersTable = ({ users, onEdit, onDelete, emptyMessage = 'No users have been added yet. Submit the form to see them here.' }) => {
-	if (users.length === 0) {
+const UsersTable = ({ rows = [], onEdit, onDelete, emptyMessage = 'No users have been added yet. Submit the form to see them here.' }) => {
+	if (rows.length === 0) {
 		return (
 			<Typography variant="body1" className="empty-state">
 				{emptyMessage}
@@ -38,7 +38,7 @@ const UsersTable = ({ users, onEdit, onDelete, emptyMessage = 'No users have bee
 					</TableRow>
 				</TableHead>
 				<TableBody>
-					{users.map((user) => (
+					{rows.map((user) => (
 						<TableRow key={user.id} hover>
 							<TableCell>
 								<Stack direction="row" spacing={2} alignItems="center">

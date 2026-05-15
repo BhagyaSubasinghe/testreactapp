@@ -1,10 +1,10 @@
 
-import { useState } from 'react';
-import { Avatar, Box, Chip, Container, InputAdornment, Stack, Tab, Tabs, TextField, Typography } from '@mui/material';
+import { useState, useEffect } from 'react';
+import { Avatar, Box, Chip, Container, InputAdornment, Stack, Tab, Tabs, TextField, Typography, Alert } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import UserForm from './userform';
 import UsersTable from './userstable';
-import initialUsers from './users';
+import { userAPI } from './services/api';
 import './App.css';
 
 const emptyForm = {
@@ -17,11 +17,32 @@ const emptyForm = {
 
 function App() {
   const [formValues, setFormValues] = useState(emptyForm);
-  const [users, setUsers] = useState(initialUsers);
+  const [users, setUsers] = useState([]);
   const [errors, setErrors] = useState({});
   const [currentTab, setCurrentTab] = useState(0);
   const [editingId, setEditingId] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [apiError, setApiError] = useState(null);
+
+  // Fetch users from backend on component mount
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const fetchUsers = async () => {
+    try {
+      setLoading(true);
+      setApiError(null);
+      const response = await userAPI.getUsers();
+      setUsers(response.data.response || []);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      setApiError('Failed to load users. Please check your connection.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -54,7 +75,7 @@ function App() {
     return nextErrors;
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
     const nextErrors = validate();
@@ -64,24 +85,30 @@ function App() {
       return;
     }
 
-    if (editingId) {
-      setUsers((currentUsers) =>
-        currentUsers.map((user) => (user.id === editingId ? { ...user, ...formValues } : user))
-      );
-      setEditingId(null);
-    } else {
-      setUsers((currentUsers) => [
-        {
-          id: crypto.randomUUID(),
-          ...formValues,
-        },
-        ...currentUsers,
-      ]);
-    }
+    try {
+      if (editingId) {
+        // Update existing user
+        await userAPI.updateUser(editingId, formValues);
+        setUsers((currentUsers) =>
+          currentUsers.map((user) => (user.id === editingId ? { ...user, ...formValues } : user))
+        );
+        setEditingId(null);
+      } else {
+        // Create new user
+        const response = await userAPI.createUser(formValues);
+        const newUser = response.data.response || { id: Date.now(), ...formValues };
+        setUsers((currentUsers) => [newUser, ...currentUsers]);
+      }
 
-    setFormValues(emptyForm);
-    setErrors({});
-    setCurrentTab(1);
+      setFormValues(emptyForm);
+      setErrors({});
+      setCurrentTab(1);
+      setApiError(null);
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      setErrors({ form: 'Failed to save user. Please try again.' });
+      setApiError('Failed to save user. Please check your connection.');
+    }
   };
 
   const handleEditUser = (user) => {
@@ -91,9 +118,16 @@ function App() {
     window.scrollTo(0, 0);
   };
 
-  const handleDeleteUser = (userId) => {
+  const handleDeleteUser = async (userId) => {
     if (window.confirm('Are you sure you want to delete this user?')) {
-      setUsers((currentUsers) => currentUsers.filter((user) => user.id !== userId));
+      try {
+        await userAPI.deleteUser(userId);
+        setUsers((currentUsers) => currentUsers.filter((user) => user.id !== userId));
+        setApiError(null);
+      } catch (error) {
+        console.error('Error deleting user:', error);
+        setApiError('Failed to delete user. Please try again.');
+      }
     }
   };
 
@@ -126,6 +160,12 @@ function App() {
     <div className="app-shell">
       <Container maxWidth="lg" className="app-container">
         <Stack spacing={4}>
+          {apiError && (
+            <Alert severity="error" onClose={() => setApiError(null)}>
+              {apiError}
+            </Alert>
+          )}
+
           <header className="hero">
             <div>
               <Chip label="User management" className="hero-chip" />
@@ -184,12 +224,18 @@ function App() {
                   }}
                 />
 
-                <UsersTable
-                  users={filteredUsers}
-                  onEdit={handleEditUser}
-                  onDelete={handleDeleteUser}
-                  emptyMessage={searchTerm ? 'No users match your search.' : undefined}
-                />
+                {loading ? (
+                  <Typography variant="body1" sx={{ textAlign: 'center', py: 3 }}>
+                    Loading users...
+                  </Typography>
+                ) : (
+                  <UsersTable
+                    users={filteredUsers}
+                    onEdit={handleEditUser}
+                    onDelete={handleDeleteUser}
+                    emptyMessage={searchTerm ? 'No users match your search.' : undefined}
+                  />
+                )}
               </Stack>
             </section>
           )}
